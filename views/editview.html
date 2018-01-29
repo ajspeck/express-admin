@@ -11,27 +11,62 @@
 {{#show.error}}
 <div class="alert alert-danger alert-dismissable">
     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-    <strong>{{string.error}}:</strong> {{string.checkout}}.
+    {{^show.errorMsg}}
+        <strong>{{string.error}}:</strong> {{string.checkout}}.
+    {{/show.errorMsg}}
+    {{#show.errorMsg}}
+        <strong>{{{show.errorMsg}}}.</strong>
+    {{/show.errorMsg}}
 </div>
 {{/show.error}}
 
 <form class="form-horizontal" action="{{root}}{{view.action}}" method="post" accept-charset="utf-8" enctype="multipart/form-data">
     {{>view}}
-    {{>inline}}
+    {{#inline}}
+    <fieldset id="{{type}}">
+        {{#tables}}
+            {{^layoutTable}}
+                {{>inline}}
+            {{/layoutTable}}
+            {{#layoutTable}}
+                {{#readonly}}
+                    {{>inlinetable}}
+                {{/readonly}}
+                {{^readonly}}
+                    {{>inlinelist}}
+                {{/readonly}}
+            {{/layoutTable}}
+        {{/tables}}
+    </fieldset>
+    {{/inline}}
 
-    {{^view.readonly}}
     <fieldset id="controls">
-        <button type="submit" class="btn btn-default form-control" name="action[another]">{{string.save-add}}</button>
+        {{^view.readonly}}
+            {{#show.delete}}
+            <button type="submit"
+                    class="btn btn-danger form-control"
+                    name="action[remove]"
+                    onclick="return confirm('{{string.delete-confirm}}');">
+                {{string.delete}}
+            </button>
+            {{/show.delete}}
 
-        <button type="submit" class="btn btn-default form-control" name="action[continue]">{{string.save-continue}}</button>
+            {{#show.saveAdd}}
+            <button type="submit" class="btn btn-default form-control" name="action[another]">{{string.save-add}}</button>
+            {{/show.saveAdd}}
 
-        <button type="submit" class="btn btn-primary form-control" name="action[save]">{{string.save}}</button>
+            {{#show.save}}
+                <button type="submit" class="btn btn-default form-control" name="action[continue]">{{string.save-continue}}</button>
 
-        {{#show.delete}}
-        <button type="submit" class="btn btn-danger form-control" name="action[remove]">{{string.delete}}</button>
-        {{/show.delete}}
+                <button type="submit" class="btn btn-primary form-control" name="action[save]">{{string.save}}</button>
+            {{/show.save}}
+        {{/view.readonly}}
 
+        {{#view}}
+        {{#customActions}}
+            <button type="submit" class="btn btn-warning form-control" name="action[{{name}}]">{{verbose}}</button>
+        {{/customActions}}
+        {{/view}}
         <input type="hidden" name="_csrf" value="{{csrf}}" />
     </fieldset>
-    {{/view.readonly}}
 </form>
